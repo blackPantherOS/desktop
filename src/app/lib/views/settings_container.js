@@ -7,7 +7,7 @@
         oldTmpLocation,
         that;
 
-    var Settings = Backbone.Marionette.ItemView.extend({
+    var SettingsContainer = Backbone.Marionette.ItemView.extend({
         template: '#settings-container-tpl',
         className: 'settings-container-contain',
 
@@ -37,6 +37,8 @@
             'click #connect-with-tvst': 'connectWithTvst',
             'click #disconnect-tvst': 'disconnectTvst',
 	    	'click .reset-ytsAPI': 'resetMovieAPI',
+            'click #authOpensubtitles': 'connectOpensubtitles',
+            'click #unauthOpensubtitles': 'disconnectOpensubtitles',
             'click .reset-tvAPI': 'resetTVShowAPI',
             'change #tmpLocation': 'updateCacheDirectory',
             'click #syncTrakt': 'syncTrakt',
@@ -66,6 +68,12 @@
             Mousetrap.bind('backspace', function (e) {
                 App.vent.trigger('settings:close');
             });
+
+            // connect opensubs on enter
+            var osMousetrap = new Mousetrap(document.getElementById('opensubtitlesPassword'));
+            osMousetrap.bind('enter', function (e) {
+                this.connectOpensubtitles();
+            }.bind(this));
         },
 
         onRender: function () {
@@ -287,6 +295,9 @@
             case 'activateTorrentCollection':
             case 'activateAutoplay':
             case 'activateRandomize':
+            case 'opensubtitlesAutoUpload':
+            case 'subtitles_bold':
+            case 'rememberFilters':
                 value = field.is(':checked');
                 break;
             case 'httpApiUsername':
@@ -308,6 +319,9 @@
                 $('.vpn-connect').toggle();
                 value = field.is(':checked');
                 break;
+            case 'opensubtitlesUsername':
+            case 'opensubtitlesPassword':
+                return;
             default:
                 win.warn('Setting not defined: ' + field.attr('name'));
             }
@@ -519,6 +533,67 @@
             App.TVShowTime.disconnect(function () {
                 self.render();
             });
+        },
+
+        connectOpensubtitles: function (e) {
+            var self = this,
+                usn = $('#opensubtitlesUsername').val(),
+                pw = $('#opensubtitlesPassword').val(),
+                OS = require('opensubtitles-api');
+                //useragent = 'Butter';
+
+            win.debug('---- OpenSubtitles ----',usn, pw, OS);
+
+            $('.opensubtitles-options .invalid-cross').hide();
+
+            if (usn !== '' && pw !== '') {
+
+        	this.alertMessageWait(i18n.__('Login to Opensubtitles account..'));
+
+                $('.opensubtitles-options .loading-spinner').show();
+                var OpenSubtitles = new OS({
+                    useragent: Settings.opensubtitles.useragent + ' v' + (Settings.version || 1),
+                    username: usn,
+                    password: Common.md5(pw)
+                });
+                
+                win.debug('---- Opensubtitles ----', useragent, username, password);
+
+
+                OpenSubtitles.login()
+                    .then(function (obj) {
+                        if (obj.token) {
+                            AdvSettings.set('opensubtitlesUsername', usn);
+                            AdvSettings.set('opensubtitlesPassword', Common.md5(pw));
+                            AdvSettings.set('opensubtitlesAuthenticated', true);
+                            $('.opensubtitles-options .loading-spinner').hide();
+                            $('.opensubtitles-options .valid-tick').show();
+                            win.info('Setting changed: opensubtitlesAuthenticated - true');
+                            return;
+                        } else {
+                            throw new Error('no token returned by OpenSubtitles');
+                        }
+                    }).delay(1000).then(function () {
+                        self.render();
+                    }).catch(function (err) {
+                        win.error('OpenSubtitles.login()', err);
+                        $('.opensubtitles-options .loading-spinner').hide();
+                        $('.opensubtitles-options .invalid-cross').show();
+                    });
+                    that.alertMessageSuccess(true);
+            } else {
+                $('.opensubtitles-options .invalid-cross').show();
+                    that.alertMessageSuccess(false);
+            }
+
+        },
+
+        disconnectOpensubtitles: function (e) {
+            var self = this;
+            AdvSettings.set('opensubtitlesUsername', '');
+            AdvSettings.set('opensubtitlesPassword', '');
+            AdvSettings.set('opensubtitlesAuthenticated', false);
+            setTimeout(self.render, 200);
         },
 
         flushBookmarks: function (e) {
@@ -830,5 +905,5 @@
 
     });
 
-    App.View.Settings = Settings;
+    App.View.Settings = SettingsContainer;
 })(window.App);

@@ -8,7 +8,7 @@
         <div class="title-version">
             <a data-toggle="tooltip" data-placement="top" title=<%= i18n.__("Changelog") %> id='changelog'><%= App.settings.version %> "<%= App.settings.releaseName %>" Beta </a>
             <% if(App.git) { %>
-                - <small><i><%= App.git.branch %> (<a class="links" href="https://git.popcorntime.ag/popcorntime-ce/desktop/commit/<%= App.git.commit %>"><%= App.git.commit.slice(0,8) %></a>)</i></small>
+                - <small><i><%= App.git.branch %> (<a class="links" href="https://git.popcorn-time.is/popcorntime-ce/desktop/commit/<%= App.git.commit %>"><%= App.git.commit.slice(0,8) %></a>)</i></small>
             <% } %>
         </div>
 

@@ -308,7 +308,7 @@
         </div>
     </section>
 
-    <!--<section id="trakt-tv">
+   <!-- <section id="trakt-tv">
         <div class="title"><%= i18n.__("Trakt.tv") %></div>
         <div class="content">
             <div class="trakt-options<%= App.Trakt.authenticated ? " authenticated" : "" %>">
@@ -368,6 +368,8 @@
 			</div>
 		</div>
 	</section>
+       //-->
+
 
     <section id="features">
         <div class="title"><%= i18n.__("Features") %></div>
@@ -425,7 +427,50 @@
                 <canvas id="qrcode" width="200" height="200"></canvas>
             </div>
         </div>
-    </section>-->
+    </section>
+    
+    <section id="opensubtitles">
+        <div class="title">OpenSubtitles</div>
+        <div class="content">
+            <div class="opensubtitles-options">
+                <% if(Settings.opensubtitlesAuthenticated) { %>
+                    <span>
+                        <%= i18n.__("You are currently connected to %s", "OpenSubtitles") %>.
+                        <a id="unauthOpensubtitles" class="unauthtext" href="#"><%= i18n.__("Disconnect account") %></a>
+                    </span>
+                <% } else { %>
+					<span>
+						<p><%= i18n.__("Username") %></p>
+						<input type="text" size="50" id="opensubtitlesUsername" name="opensubtitlesUsername">
+                        <div class="loading-spinner" style="display: none"></div>
+                        <div class="valid-tick" style="display: none"></div>
+                        <div class="invalid-cross" style="display: none"></div>
+					</span>
+					<span>
+						<p><%= i18n.__("Password") %></p>
+						<input type="password" size="50" id="opensubtitlesPassword" name="opensubtitlesPassword">
+					</span>
+                <div class="btns database">
+                        <div class="btn-settings" id="authOpensubtitles">
+                            <i class="fa fa-user-plus">&nbsp;&nbsp;</i>
+                            <%= i18n.__("Connect To %s", "OpenSubtitles") %>
+                        </div>
+                </div>
+
+
+		    <span>
+			    <em><%= i18n.__("%s stores an encrypted hash of your password in your local database", Settings.projectName) %></em>
+		    </span>
+                
+                <% } %>
+
+                <span class="advanced">
+                    <input class="settings-checkbox" name="opensubtitlesAutoUpload" id="opensubtitlesAutoUpload" type="checkbox" <%=(Settings.opensubtitlesAutoUpload? "checked='checked'":"")%>>
+                    <label class="settings-label" for="opensubtitlesAutoUpload"><%= i18n.__("Automatic Subtitle Uploading") %></label>
+                </span>
+            </div>
+        </div>
+    </section>
 
     <section id="connection">
         <div class="title"><%= i18n.__("Connection") %></div>
